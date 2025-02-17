@@ -8,26 +8,30 @@ const notificacionesRoutes = require('./routes/notificaciones');
 
 const app = express();
 
+// 🔹 Configurar CORS correctamente
+const corsOptions = {
+    origin: ["https://frontend-notificaciones.onrender.com"], // Agrega la URL de tu frontend en Render
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true
+};
+app.use(cors(corsOptions));
+
 // Middlewares
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(bodyParser.json());
+
+// Rutas
 app.use('/login', loginRoutes);
 app.use('/notificaciones', notificacionesRoutes);
 
-// Sincronizar base de datos
-db.sequelize.sync( {alter: true} )
-    .then(() => {
-        console.log('Base de datos sincronizada');
-    })
-    .catch((err) => {
-        console.error('Error al sincronizar la base de datos:', err);
-    });
+// 🔹 Sincronizar base de datos con manejo de errores
+db.sequelize.sync({ alter: true })
+    .then(() => console.log('✅ Base de datos sincronizada'))
+    .catch((err) => console.error('❌ Error al sincronizar la base de datos:', err));
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
