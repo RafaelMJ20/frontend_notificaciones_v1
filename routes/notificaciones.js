@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../models');
 
 const calcularEstadoYHabilitacion = (notificacion) => {
-    const cutoffDate = new Date('2025-02-01T00:00:00'); // Fecha límite: 1 de febrero 2025
+    const cutoffDate = new Date('2025-03-01T00:00:00'); // Fecha límite: 1 de febrero 2025
     const fechaCreacion = new Date(notificacion.fecha);
 
     // Si la notificación es anterior al 1 de febrero 2025, retorna valores originales
