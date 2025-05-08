@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../models');
+const verificarRol = require('../middlewares/verificarRol');
 
 const calcularEstadoYHabilitacion = (notificacion) => {
     const cutoffDate = new Date('2025-02-25T00:00:00'); // Fecha límite: 1 de febrero 2025
@@ -39,8 +40,8 @@ const calcularEstadoYHabilitacion = (notificacion) => {
     return { numero, estado, habilitado };
 };
 
-// Crear notificación
-router.post('/', async (req, res) => {
+// Crear notificación → solo admin
+router.post('/', verificarRol(['admin']), async (req, res) => {
     try {
         const notificacion = await db.Notificacion.create(req.body);
         res.status(201).json(notificacion);
@@ -49,12 +50,11 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Obtener todas las notificaciones
+// Obtener todas las notificaciones → cualquier rol
 router.get('/', async (req, res) => {
     try {
         const notificaciones = await db.Notificacion.findAll();
 
-        // Calcular el estado y habilitación para cada notificación
         const notificacionesActualizadas = notificaciones.map(notificacion => {
             const { estado, habilitado } = calcularEstadoYHabilitacion(notificacion);
             return {
@@ -70,7 +70,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+// Actualizar notificación → solo admin
+router.put('/:id', verificarRol(['admin']), async (req, res) => {
     try {
         const notificacion = await db.Notificacion.findByPk(req.params.id);
         if (!notificacion) {
@@ -80,7 +81,6 @@ router.put('/:id', async (req, res) => {
         const cutoffDate = new Date('2025-02-01T00:00:00');
         const fechaCreacion = new Date(notificacion.fecha);
 
-        // Si es anterior al 1 de febrero 2025, no permite cambios de estado/habilitado
         if (fechaCreacion < cutoffDate) {
             return res.status(400).json({ 
                 error: 'No se pueden editar notificaciones anteriores al 1 de febrero 2025' 
@@ -100,8 +100,8 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// Eliminar notificación
-router.delete('/:id', async (req, res) => {
+// Eliminar notificación → solo admin
+router.delete('/:id', verificarRol(['admin']), async (req, res) => {
     try {
         await db.Notificacion.destroy({ where: { id: req.params.id } });
         res.json({ message: 'Notificación eliminada' });
@@ -109,5 +109,22 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// Ruta para alternar estado de resuelta
+router.put('/:id/resuelta', verificarRol(['admin']), async (req, res) => {
+    try {
+      const notificacion = await db.Notificacion.findByPk(req.params.id);
+      if (!notificacion) return res.status(404).json({ error: 'No encontrada' });
+  
+      notificacion.resuelta = !notificacion.resuelta; // Cambiar el estado
+      await notificacion.save();
+  
+      res.json({ message: 'Estado actualizado', resuelta: notificacion.resuelta });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al actualizar estado' });
+    }
+  });
+  
 
 module.exports = router;

@@ -22,8 +22,12 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'Contraseña incorrecta' });
         }
 
-        // Si todo es correcto, enviar la respuesta de éxito
-        return res.json({ message: 'Inicio de sesión exitoso' });
+        // Devuelve el rol y otros datos si es necesario
+        return res.json({
+            id: user.id,
+            email: user.email,
+            rol: user.rol // ← esto es importante
+        });
 
     } catch (error) {
         console.error(error);

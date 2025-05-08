@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         niveles: {type: DataTypes.INTEGER, allowNull: false},
         caracteristicas: { type: DataTypes.STRING }, // Lista separada por comas
         estado: { type: DataTypes.STRING},
+        resuelta: { type: DataTypes.BOOLEAN, defaultValue: false },
         habilitado: { type: DataTypes.BOOLEAN, defaultValue: false }
     });
 
