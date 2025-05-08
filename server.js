@@ -10,7 +10,7 @@ const app = express();
 
 // 🔹 Configurar CORS correctamente
 const corsOptions = {
-    origin: ["http://127.0.0.1:8080"], // Agrega la URL de tu frontend en Render
+    origin: ["https://backend-notificaciones-v1.onrender.com"], // Agrega la URL de tu frontend en Render
     methods: "GET,POST,PUT,DELETE",
     credentials: true
 };
